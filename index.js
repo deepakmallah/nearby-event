@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
  * Body Parser
  */
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 /**
  * Template Engine
