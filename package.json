@@ -1,0 +1,22 @@
+{
+  "name": "nearby-event-tracker",
+  "version": "1.0.0",
+  "description": "Search engine which can show events happening within your vicinity and also, based on your mood/genre.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepakmallah/nearby-event.git"
+  },
+  "author": "Deepak",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/deepakmallah/nearby-event/issues"
+  },
+  "homepage": "https://github.com/deepakmallah/nearby-event#readme",
+  "dependencies": {
+    "express": "^4.16.2"
+  }
+}
