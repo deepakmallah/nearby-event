@@ -25,5 +25,6 @@ module.exports = (req, res) => {
     })
     .catch((err) => {
       console.log("Error occured", err)
+      res.status(500).send(err);
     });
 };
