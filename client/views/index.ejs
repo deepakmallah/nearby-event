@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <script type="text/javascript">window.categories = <%- categories %></script>
     <style>
         /* Always set the map height explicitly to define the size of the div
          * element that contains the map. */
@@ -13,9 +14,44 @@
             margin: 0;
             padding: 0;
         }
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #dddddd;
+            height: 40px;
+        }
+
+        li {
+            float: left;
+            padding: 10px;
+        }
+
+        li a {
+            display: block;
+            padding: 8px;
+        }
     </style>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 </head>
 <body>
+<ul>
+    <li>Category <select id="category-selector"></select></li>
+    <li>Radius <input id="radius" value="10"/></li>
+    <li>Longitude <input id="longitude" value="-77.036871"/></li>
+    <li>Latitude <input id="latitude" value="38.907192"/></li>
+    <li><input type="button" onclick="submitHandler()" value="Submit form"></li>
+</ul>
+<script type="text/javascript">
+  var catSelect = document.getElementById('category-selector');
+  catSelect.options[catSelect.options.length] = new Option("Select Option", "");
+  for(var i = 0; i < window.categories.length; i++){
+    var item = window.categories[i];
+    catSelect.options[catSelect.options.length] = new Option(item.name, item.id);
+  }
+</script>
+
 <div id="map"></div>
 <!-- Marker -->
 <!-- script>
@@ -50,49 +86,90 @@
 </script -->
 
 <script>
-  // Note: This example requires that you consent to location sharing when
-  // prompted by your browser. If you see the error "The Geolocation service
-  // failed.", it means you probably did not give permission for the browser to
-  // locate you.
   var map, infoWindow;
   function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
-      center: {lat: -34.397, lng: 150.644},
-      zoom: 6
+      center: {lat: parseFloat(document.getElementById("latitude").value), lng: parseFloat(document.getElementById("longitude").value)},
+      zoom: 10
     });
     infoWindow = new google.maps.InfoWindow;
-
-    // Try HTML5 geolocation.
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(function(position) {
-        var pos = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        };
-
-        infoWindow.setPosition(pos);
-        infoWindow.setContent('Location found.');
-        infoWindow.open(map);
-        map.setCenter(pos);
-      }, function() {
-        handleLocationError(true, infoWindow, map.getCenter());
-      });
-    } else {
-      // Browser doesn't support Geolocation
-      handleLocationError(false, infoWindow, map.getCenter());
-    }
   }
 
-  function handleLocationError(browserHasGeolocation, infoWindow, pos) {
-    infoWindow.setPosition(pos);
-    infoWindow.setContent(browserHasGeolocation ?
-      'Error: The Geolocation service failed.' :
-      'Error: Your browser doesn\'t support geolocation.');
-    infoWindow.open(map);
+  var longitude = null;
+  var latitude = null;
+
+  function submitHandler() {
+    console.log("submitHandler")
+
+    var sel  = document.getElementById("category-selector");
+    var cat = sel.options[sel.selectedIndex].value;
+
+    var radius = document.getElementById("radius").value;
+    longitude = document.getElementById("longitude").value;
+    latitude = document.getElementById("latitude").value;
+
+    console.log(longitude, latitude, radius, cat)
+    getEvents(longitude, latitude, radius, cat)
+  }
+
+  function myFunction(id) {
+    console.log("myFunction id", id)
+  }
+
+  function getEvents(longitude, latitude, radius, cat) {
+    console.log(longitude, latitude, radius, cat)
+    //url: `http://127.0.0.1:3000/events/-77.036871/38.907192/8/104${}`,
+    cat = cat ? cat : 0
+    $.ajax({
+      type: "GET",
+      contentType: 'html',
+      url: `http://127.0.0.1:3000/events/${longitude}/${latitude}/${radius}/${cat}`,
+      success: function(data) {
+        console.log("asdasd", data)
+        if(data.events){
+
+          // Creating Maker starts here
+          var infoWindow = new google.maps.InfoWindow;
+          for (var i = 0; i < data.events.length; i++) {
+            var event = data.events[i];
+            if(event.venue && event.venue.address){
+
+              for(var j = 0; j < event.events.length; j++){
+                var markerDetail = event.events[j];
+                var latLng = new google.maps.LatLng(event.venue.address.latitude,event.venue.address.longitude);
+                var domCont = "";
+
+                domCont += markerDetail.name ?`<p>${markerDetail.name.html}</p>` : "";
+                domCont += markerDetail.logo ?`<p><img src='${markerDetail.logo.url}' /></p>` : "";
+                domCont += markerDetail.description ? `<p>${markerDetail.description.html}</p>` : "";
+                domCont += markerDetail.start ? `<p>${markerDetail.start.local}</p>` : "";
+                domCont += markerDetail ? `<p><button onclick="myFunction(${markerDetail.id})">Remind Me</button></p>` : "";
+
+                // Creating a marker and putting it on the map
+                var marker = new google.maps.Marker({
+                  position: latLng,
+                  map: map,
+                  title: markerDetail.name.text,
+                  infoWindowContent: domCont
+                });
+
+                google.maps.event.addListener(marker, 'click', function() {
+                  infoWindow.setContent(this.infoWindowContent);
+                  infoWindow.open(map,this);
+                });
+              }
+            }else{
+              console.log("Venue detail missing")
+            }
+          }
+        }
+      }
+    });
+
   }
 </script>
-<script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDmTXUQyhlAMB-xC_6HDYspGPi9dcn9ek8&callback=initMap">
+<!--<script async defer src="//maps.googleapis.com/maps/api/js?key=AIzaSyDmTXUQyhlAMB-xC_6HDYspGPi9dcn9ek8&callback=initMap">-->
+<script async defer src="//maps.googleapis.com/maps/api/js?key=AIzaSyDmTXUQyhlAMB-xC_6HDYspGPi9dcn9ek8&callback=initMap">
 </script>
 </body>
 </html>
