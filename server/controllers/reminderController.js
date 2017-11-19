@@ -7,7 +7,7 @@ const event =  require("../model/event");
 
 module.exports = (req, res) => {
 
-  function getCategories(params) {
+  function getEvent(params) {
     return new Promise((resolve, reject) => {
       if(!params.eventId) reject("details missing");
       request(`https://www.eventbriteapi.com/v3/events/${params.eventId}?token=${token}`, function (error, response, body) {
@@ -21,15 +21,15 @@ module.exports = (req, res) => {
   }
 
 
-  getCategories(req.params)
+  getEvent(req.params)
     .then(eventData => {
       var tmp = req.params;
       tmp.name = eventData.name ? eventData.name.text : "";
       tmp.startAt = eventData.start ? eventData.start.utc : "";
       return event.insertEvent(tmp)
     })
-    .then(res => {
-      res.send(res)
+    .then(resData => {
+      res.send(resData)
     })
     .catch(err => {
       console.log("err", err);
