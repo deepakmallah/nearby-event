@@ -6,6 +6,8 @@ const token = "KFIMKJ3IIGGSXHEVAULZ";
 
 module.exports = (req, res) => {
   var params = req.params;
+  var venues = null;
+  var eventsVenue = null;
 
   function getEvents() {
     return new Promise((resolve, reject) => {
@@ -30,9 +32,44 @@ module.exports = (req, res) => {
     })
   }
 
+  function getVenues(venue_id) {
+    return new Promise((resolve, reject) => {
+
+      var url = `https://www.eventbriteapi.com/v3/venues/${venue_id}?token=${token}`;
+      request(url, function (error, response, body) {
+        if(error) reject(error);
+
+        if (!error && response.statusCode == 200) {
+          venues[venue_id]["venue"] = JSON.parse(body);
+
+          resolve(venues[venue_id]);
+        }
+      });
+    });
+  }
+
   getEvents()
     .then((resData) => {
-      res.send(resData)
+      eventsVenue = resData;
+      if(!resData.events.length) res.send({});
+
+      var tmp = {};
+      var len = resData.events.length;
+      for(var i = 0; i < len; i++){
+        var event = resData.events[i];
+        if(Object.keys(tmp).indexOf(event["venue_id"]) > -1){
+          tmp[event["venue_id"]]["events"].push(event);
+        }else{
+          tmp[event["venue_id"]] = {events: []};
+          tmp[event["venue_id"]]["events"].push(event);
+        }
+      }
+      venues = tmp;
+      return Promise.map(Object.keys(tmp), getVenues)
+    })
+    .then((data) => {
+      eventsVenue.events = data;
+      res.send(eventsVenue)
     })
     .catch((err) => {
       console.log("Error occured", err)
