@@ -3,12 +3,10 @@
 <head>
     <script type="text/javascript">window.categories = <%- categories %></script>
     <style>
-        /* Always set the map height explicitly to define the size of the div
-         * element that contains the map. */
         #map {
             height: 100%;
         }
-        /* Optional: Makes the sample page fill the window. */
+
         html, body {
             height: 100%;
             margin: 0;
@@ -53,40 +51,10 @@
 </script>
 
 <div id="map"></div>
-<!-- Marker -->
-<!-- script>
-  var map;
-  function initMap() {
-    map = new google.maps.Map(document.getElementById('map'), {
-      zoom: 2,
-      center: new google.maps.LatLng(2.8,-187.3),
-      mapTypeId: 'terrain'
-    });
-
-    // Create a <script> tag and set the USGS URL as the source.
-    var script = document.createElement('script');
-    // This example uses a local copy of the GeoJSON stored at
-    // http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.geojsonp
-    script.src = 'https://developers.google.com/maps/documentation/javascript/examples/json/earthquake_GeoJSONP.js';
-    document.getElementsByTagName('head')[0].appendChild(script);
-  }
-
-  // Loop through the results array and place a marker for each
-  // set of coordinates.
-  window.eqfeed_callback = function(results) {
-    for (var i = 0; i < results.features.length; i++) {
-      var coords = results.features[i].geometry.coordinates;
-      var latLng = new google.maps.LatLng(coords[1],coords[0]);
-      var marker = new google.maps.Marker({
-        position: latLng,
-        map: map
-      });
-    }
-  }
-</script -->
 
 <script>
   var map, infoWindow;
+  var markers = [];
   function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
       center: {lat: parseFloat(document.getElementById("latitude").value), lng: parseFloat(document.getElementById("longitude").value)},
@@ -99,8 +67,6 @@
   var latitude = null;
 
   function submitHandler() {
-    console.log("submitHandler")
-
     var sel  = document.getElementById("category-selector");
     var cat = sel.options[sel.selectedIndex].value;
 
@@ -108,32 +74,35 @@
     longitude = document.getElementById("longitude").value;
     latitude = document.getElementById("latitude").value;
 
-    console.log(longitude, latitude, radius, cat)
     getEvents(longitude, latitude, radius, cat)
   }
 
-  function myFunction(id) {
-    console.log("myFunction id", id)
+  function addReminder(id) {
+    console.log("addReminder id", id)
+  }
+
+  // clears map
+  function clearMarkers() {
+    for (var i = 0; i < markers.length; i++) {
+      markers[i].setMap(null);
+    }
   }
 
   function getEvents(longitude, latitude, radius, cat) {
-    console.log(longitude, latitude, radius, cat)
-    //url: `http://127.0.0.1:3000/events/-77.036871/38.907192/8/104${}`,
     cat = cat ? cat : 0
     $.ajax({
       type: "GET",
       contentType: 'html',
       url: `http://127.0.0.1:3000/events/${longitude}/${latitude}/${radius}/${cat}`,
       success: function(data) {
-        console.log("asdasd", data)
         if(data.events){
-
+          clearMarkers();
+          markers = [];
           // Creating Maker starts here
           var infoWindow = new google.maps.InfoWindow;
           for (var i = 0; i < data.events.length; i++) {
             var event = data.events[i];
             if(event.venue && event.venue.address){
-
               for(var j = 0; j < event.events.length; j++){
                 var markerDetail = event.events[j];
                 var latLng = new google.maps.LatLng(event.venue.address.latitude,event.venue.address.longitude);
@@ -143,7 +112,7 @@
                 domCont += markerDetail.logo ?`<p><img src='${markerDetail.logo.url}' /></p>` : "";
                 domCont += markerDetail.description ? `<p>${markerDetail.description.html}</p>` : "";
                 domCont += markerDetail.start ? `<p>${markerDetail.start.local}</p>` : "";
-                domCont += markerDetail ? `<p><button onclick="myFunction(${markerDetail.id})">Remind Me</button></p>` : "";
+                domCont += markerDetail ? `<p><button onclick="addReminder(${markerDetail.id})">Remind Me</button></p>` : "";
 
                 // Creating a marker and putting it on the map
                 var marker = new google.maps.Marker({
@@ -152,6 +121,8 @@
                   title: markerDetail.name.text,
                   infoWindowContent: domCont
                 });
+
+                markers.push(marker);
 
                 google.maps.event.addListener(marker, 'click', function() {
                   infoWindow.setContent(this.infoWindowContent);
@@ -163,12 +134,14 @@
             }
           }
         }
+      },
+      error: function (textStatus, errorThrown) {
+        console.log("error", textStatus);
       }
     });
 
   }
 </script>
-<!--<script async defer src="//maps.googleapis.com/maps/api/js?key=AIzaSyDmTXUQyhlAMB-xC_6HDYspGPi9dcn9ek8&callback=initMap">-->
 <script async defer src="//maps.googleapis.com/maps/api/js?key=AIzaSyDmTXUQyhlAMB-xC_6HDYspGPi9dcn9ek8&callback=initMap">
 </script>
 </body>
