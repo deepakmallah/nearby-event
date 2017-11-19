@@ -2,6 +2,12 @@ const express = require('express');
 const app = express();
 const router = require('./server/routes.js');
 const path = require('path');
+const bodyParser = require('body-parser');
+
+/**
+ * Body Parser
+ */
+app.use(bodyParser.json());
 
 /**
  * Template Engine
