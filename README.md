@@ -1,8 +1,5 @@
-# Find events happening in your vicinity
+# Find Events happening in your vicinity
 Events can be searched by updating the fields in the top.
-
-_**please Note**: Image url should be open. or else below given image urls can be use for testing_
-
 
 **Steps** <br />
 1. Set environment variable for API hostname i.e `HOST_URL`. for e.g `export HOST_URL="http://127.0.0.1:3000"`
@@ -13,4 +10,5 @@ _**please Note**: Image url should be open. or else below given image urls can b
 
 **Stack Used**
 - ExpressJs
+- MongoDb, `mongoose` 
 - EJS Template engine
