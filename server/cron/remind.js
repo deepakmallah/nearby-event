@@ -24,13 +24,12 @@ var Reminder = mongoose.model("Reminder", schema);
 
 function sendEmail(item) {
   return new Promise((resolve, reject) => {
-    console.log("itme", item, process.env.SENDGRID_API_KEY)
     const msg = {
       to: 'deepak.mallah@gmail.com',
       from: item.email,
-      subject: 'Sending with SendGrid is Fun',
-      text: 'and easy to do anywhere, even with Node.js',
-      html: '<strong>and easy to do anywhere, even with Node.js</strong>',
+      subject: `"${item.name}" will start @ ${item.startAt}`,
+      text: `Hello, <br />This email is to Remind you about the event "${item.name}" which will start at ${item.startAt}`,
+      html: `<p>Hello,</p><p>This email is to Remind you about the event <b>"${item.name}"</b> which will start at <b>${item.startAt}</b></p>`,
     };
 
     sgMail.send(msg)
@@ -44,7 +43,7 @@ function sendEmail(item) {
   })
 }
 
-Reminder.find({status: false})
+Reminder.find({status: true})
   .then(events => {
     var mailList = [];
     if(events.length){
@@ -56,18 +55,14 @@ Reminder.find({status: false})
         var b = moment(eventDate);
         var diff = b.diff(a, 'minutes');
 
-        console.log("events[i]", diff)
-        if(diff >= events[i]["time"]) mailList.push({eventId: events[i]["eventId"], email: events[i]["email"], id: events[i]["_id"]});
+        if(diff <= events[i]["time"]) mailList.push(events[i]);
       }
-
-      console.log("mailList", mailList)
     }
 
     return Promise.map(mailList, sendEmail)
   })
   .then(list => {
     if(list.length){
-      console.log("list list list list", list);
       return Reminder.update({ _id: { $in: list } },{ $set: { status : true } }, { multi: true })
     }else{
       return Promise.resolve(0);
