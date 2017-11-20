@@ -17,10 +17,12 @@
   },
   "homepage": "https://github.com/deepakmallah/nearby-event#readme",
   "dependencies": {
+    "@sendgrid/mail": "^6.1.4",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
     "ejs": "^2.5.7",
     "express": "^4.16.2",
+    "moment": "^2.19.2",
     "mongoose": "^4.13.4",
     "request": "^2.83.0"
   }

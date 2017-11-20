@@ -13,6 +13,7 @@ var schema = new mongoose.Schema({
   email: String,
   time: Number,
   startAt: Date,
+  status: {type: Boolean, default: false}
 });
 
 const Reminder = mongoose.model("Reminder", schema);
