@@ -318,7 +318,7 @@
     $.ajax({
       type: "GET",
       contentType: 'html',
-      url: `http://127.0.0.1:3000/reminder/${eventId}/${email}/${time}`,
+      url: `http://52.66.11.53/reminder/${eventId}/${email}/${time}`,
       success: function(data) {
         console.log("data", data)
         alert("request submitted")
@@ -345,7 +345,7 @@
     $.ajax({
       type: "GET",
       contentType: 'html',
-      url: `http://127.0.0.1:3000/events/${longitude}/${latitude}/${radius}/${cat}`,
+      url: `http://52.66.11.53/events/${longitude}/${latitude}/${radius}/${cat}`,
       success: function(data) {
         if(data.events){
           clearMarkers();
