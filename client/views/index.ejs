@@ -243,10 +243,10 @@
 </div>
 <ul>
     <li>Category <select id="category-selector"></select></li>
-    <li>Radius <input id="radius" value="10"/></li>
+    <li>Radius(kms) <input id="radius" value="10"/></li>
     <li>Longitude <input id="longitude" value="-77.036871"/></li>
     <li>Latitude <input id="latitude" value="38.907192"/></li>
-    <li><input type="button" onclick="submitHandler()" value="Submit form"></li>
+    <li><input id="submitHandler" type="button" value="Find Events"></li>
 </ul>
 <script type="text/javascript">
   var catSelect = document.getElementById('category-selector');
@@ -292,16 +292,17 @@
   var longitude = null;
   var latitude = null;
 
-  function submitHandler() {
+  document.getElementById("submitHandler").addEventListener("click", function(event){
     var sel  = document.getElementById("category-selector");
     var cat = sel.options[sel.selectedIndex].value;
 
+    if(!cat) alert("please select Category"); event.preventDefault();
     var radius = document.getElementById("radius").value;
     longitude = document.getElementById("longitude").value;
     latitude = document.getElementById("latitude").value;
 
     getEvents(longitude, latitude, radius, cat)
-  }
+  });
 
   function addReminder(id) {
     document.getElementById("event-id").value = id;
@@ -363,6 +364,7 @@
                 domCont += markerDetail.logo ?`<p><img src='${markerDetail.logo.url}' /></p>` : "";
                 domCont += markerDetail.description ? `<p>${markerDetail.description.html}</p>` : "";
                 domCont += markerDetail.start ? `<p>${markerDetail.start.local}</p>` : "";
+                domCont += markerDetail ? `<p>Latitude: ${event.venue.address.latitude} , Longitude: ${event.venue.address.longitude}</p>` : "";
 
                 // Creating a marker and putting it on the map
                 var marker = new google.maps.Marker({
