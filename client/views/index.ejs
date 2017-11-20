@@ -364,7 +364,7 @@
                 var latLng = new google.maps.LatLng(event.venue.address.latitude,event.venue.address.longitude);
                 var domCont = "";
 
-                domCont += markerDetail.name ?`<p>${markerDetail.name.html} <button class="btn btn-primary pull-right" onclick="addReminder(${markerDetail.id})">Notify Me</button></p>` : "";
+                domCont += markerDetail.name ?`<p><h3>${markerDetail.name.text}</h3> <button class="btn btn-primary pull-right" onclick="addReminder(${markerDetail.id})">Notify Me</button></p>` : "";
                 domCont += markerDetail.logo ?`<p><img src='${markerDetail.logo.url}' /></p>` : "";
                 domCont += markerDetail.description ? `<p>${markerDetail.description.html}</p>` : "";
                 domCont += markerDetail.start ? `<p>${markerDetail.start.local}</p>` : "";
