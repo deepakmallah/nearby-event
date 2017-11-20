@@ -5,7 +5,7 @@ const request = require("request");
 const token = "KFIMKJ3IIGGSXHEVAULZ";
 
 module.exports = (req, res) => {
-
+  var hosturl = process.env.HOST_URL || "http://127.0.0.1:3000";
   function getCategories() {
     return new Promise((resolve, reject) => {
       request(`https://www.eventbriteapi.com/v3/categories?token=${token}`, function (error, response, body) {
@@ -20,8 +20,7 @@ module.exports = (req, res) => {
 
   getCategories()
     .then((resData) => {
-      console.log("getCategories", resData)
-      res.render('index.ejs', {categories: JSON.stringify(resData.categories)});
+      res.render('index.ejs', {categories: JSON.stringify(resData.categories), hosturl: hosturl});
     })
     .catch((err) => {
       console.log("Error occured", err)

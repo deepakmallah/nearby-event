@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script type="text/javascript">window.categories = <%- categories %></script>
+    <script type="text/javascript">
+      window.hosturl = '<%= hosturl %>';
+      window.categories = <%- categories %>
+    </script>
     <style>
         #map {
             height: 93%;
@@ -293,6 +296,7 @@
   var latitude = null;
 
   document.getElementById("submitHandler").addEventListener("click", function(event){
+    initMap();
     var sel  = document.getElementById("category-selector");
     var cat = sel.options[sel.selectedIndex].value;
 
@@ -308,7 +312,7 @@
     document.getElementById("event-id").value = id;
     $("#myModal").modal()
   }
-  
+
   function submitReminder() {
     var eventId = document.getElementById("event-id").value;
     var email = document.getElementById("email").value;
@@ -318,7 +322,7 @@
     $.ajax({
       type: "GET",
       contentType: 'html',
-      url: `http://52.66.11.53/reminder/${eventId}/${email}/${time}`,
+      url: `${window.hosturl}/reminder/${eventId}/${email}/${time}`,
       success: function(data) {
         console.log("data", data)
         alert("request submitted")
@@ -345,7 +349,7 @@
     $.ajax({
       type: "GET",
       contentType: 'html',
-      url: `http://52.66.11.53/events/${longitude}/${latitude}/${radius}/${cat}`,
+      url: `${window.hosturl}/events/${longitude}/${latitude}/${radius}/${cat}`,
       success: function(data) {
         if(data.events){
           clearMarkers();
